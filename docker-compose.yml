@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.10.1
+    image: logstash:7.10.1
     container_name: logstash
     ports:
       - "5044:5044"       # Порт для получения логов от Jenkins

@@ -1,26 +1,31 @@
-# Используем официальный образ Go для сборки
-FROM golang:1.20 as builder
+# Указываем базовый образ с нужной версией Go
+FROM golang:1.23 AS builder
 
-# Устанавливаем рабочую директорию в контейнере
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем Go-файлы в контейнер
-COPY . .
+# Инициализируем модуль Go и копируем исходные файлы
+COPY main.go .
+COPY database.go .
 
-# Сборка Go-приложения
-RUN go mod download
+# Инициализация Go-модуля
+RUN go mod init example.com/backend
+RUN go mod tidy
+
+# Собираем бинарный файл с именем backend
 RUN go build -o backend main.go database.go
 
-# Создаем минимальный образ для запуска приложения
-FROM alpine:latest
+# Финальный образ для запуска бинарного файла
+FROM debian:stable-slim
 
-# Устанавливаем зависимости SQLite для работы с базой данных
-RUN apk --no-cache add sqlite
+# Копируем бинарник из билдера
+COPY --from=builder /app/backend /usr/local/bin/backend
 
-WORKDIR /app
+# Устанавливаем рабочую директорию
+WORKDIR /usr/local/bin
 
-# Копируем скомпилированное приложение из builder-а
-COPY --from=builder /app/backend .
+# Открываем порт, если он используется вашим приложением (например, 8080)
+EXPOSE 8080
 
-# Запуск приложения
-CMD ["./backend"]
+# Указываем команду для запуска приложения
+CMD ["backend"]
