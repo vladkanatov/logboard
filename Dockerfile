@@ -21,7 +21,6 @@ WORKDIR /app
 
 # Копируем скомпилированное приложение из builder-а
 COPY --from=builder /app/backend .
-COPY --from=builder /app/logs.db .
 
 # Запуск приложения
 CMD ["./backend"]
