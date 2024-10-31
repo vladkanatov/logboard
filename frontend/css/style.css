@@ -1,0 +1,89 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+/* Заголовок */
+h1 {
+  font-size: 2em;
+  padding: 15px;
+  background-color: #007acc;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Панель вкладок */
+.tabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border-bottom: 2px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tabs button {
+  background-color: #007acc;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.tabs button:hover {
+  background-color: #005f99;
+}
+
+/* Область логов */
+.tab {
+  display: none;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 10px 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+
+.tab.active {
+  display: block;
+}
+
+/* Сообщения с логами */
+.log-entry {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.success {
+  background-color: #e6ffed;
+  color: #218838;
+  border-left: 5px solid #28a745;
+}
+
+.error {
+  background-color: #ffe6e6;
+  color: #c82333;
+  border-left: 5px solid #dc3545;
+}
+
+.info {
+  background-color: #e6f3ff;
+  color: #007acc;
+  border-left: 5px solid #007bff;
+}
