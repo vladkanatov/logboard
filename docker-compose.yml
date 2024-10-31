@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  build-log-server:
+    image: build-logging:latest
+    container_name: build_log_server
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/lib/jenkins/build_logging/logs:/home/appuser/logs
+    restart: always

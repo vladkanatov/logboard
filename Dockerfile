@@ -36,7 +36,6 @@ COPY --from=builder /app/frontend /home/appuser/frontend
 
 # Меняем права на исполняемый файл и статические файлы
 RUN chown -R appuser:appuser /home/appuser
-RUN chown -R appuser:appuser /home/appuser/logs
 
 # Переходим на пользователя с ограниченными правами
 USER appuser
