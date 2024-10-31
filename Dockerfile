@@ -1,31 +1,48 @@
-# Указываем базовый образ с нужной версией Go
-FROM golang:1.23 AS builder
+# Стадия 1: сборка
+FROM golang:1.23-alpine AS builder
 
-# Устанавливаем рабочую директорию
+# Устанавливаем зависимости для сборки
+RUN apk add --no-cache git gcc musl-dev
+
+# Создаем рабочую директорию
 WORKDIR /app
 
-# Инициализируем модуль Go и копируем исходные файлы
-COPY main.go .
-COPY database.go .
+# Копируем файлы go.mod и go.sum для установки зависимостей
+COPY go.mod go.sum ./
 
-# Инициализация Go-модуля
-RUN go mod init example.com/backend
-RUN go mod tidy
+# Загружаем зависимости
+RUN go mod download
 
-# Собираем бинарный файл с именем backend
-RUN go build -o backend main.go database.go
+# Копируем остальные файлы проекта
+COPY . .
 
-# Финальный образ для запуска бинарного файла
-FROM debian:stable-slim
+# Собираем бинарный файл с флагами оптимизации
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o /app-server .
 
-# Копируем бинарник из билдера
-COPY --from=builder /app/backend /usr/local/bin/backend
+# Стадия 2: финальный контейнер
+FROM alpine:latest
 
-# Устанавливаем рабочую директорию
-WORKDIR /usr/local/bin
+# Создаем пользователя для безопасного запуска
+RUN adduser -D -u 1000 appuser
 
-# Открываем порт, если он используется вашим приложением (например, 8080)
+# Устанавливаем директорию для приложения
+WORKDIR /home/appuser
+
+# Копируем бинарник из стадии сборки
+COPY --from=builder /app-server .
+
+# Копируем статические файлы (frontend)
+COPY --from=builder /app/frontend /home/appuser/frontend
+
+# Меняем права на исполняемый файл и статические файлы
+RUN chown -R appuser:appuser /home/appuser
+RUN chown -R appuser:appuser /home/appuser/logs
+
+# Переходим на пользователя с ограниченными правами
+USER appuser
+
+# Экспортируем порт для доступа к приложению
 EXPOSE 8080
 
-# Указываем команду для запуска приложения
-CMD ["backend"]
+# Запуск приложения
+CMD ["./app-server"]

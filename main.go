@@ -1,103 +1,202 @@
 package main
 
 import (
+	"archive/zip"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-// Структура для логов
-type LogEntry struct {
+// Data - структура данных
+type Data struct {
 	Tab    string `json:"tab"`
 	Status string `json:"status"`
 	Data   string `json:"data"`
 }
 
-var clients = make(map[*websocket.Conn]bool) // Открытые соединения WebSocket
-var broadcast = make(chan LogEntry)          // Канал для передачи логов
-
+var client *websocket.Conn // единственный клиент
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
-// Обработчик для приема логов от Logstash
-func handleLogs(w http.ResponseWriter, r *http.Request) {
-	var entry LogEntry
-	if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
-		http.Error(w, "Некорректные данные", http.StatusBadRequest)
-		return
-	}
-
-	// Сохранение в базе данных
-	if err := insertLog(entry.Tab, entry.Status, entry.Data); err != nil {
-		log.Println("Ошибка при записи в БД:", err)
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-
-	// Отправка в канал для передачи через WebSocket
-	broadcast <- entry
-	w.WriteHeader(http.StatusOK)
-}
-
-// Обработчик WebSocket
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+// WebSocket-коннектор
+func handleConnections(w http.ResponseWriter, r *http.Request) {
+	var err error
+	client, err = upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Ошибка при обновлении WebSocket:", err)
+		log.Println("Ошибка подключения к WebSocket:", err)
 		return
 	}
-	defer ws.Close()
-	clients[ws] = true
+	defer client.Close()
 
-	// Чтение сообщений из WebSocket (если нужно)
 	for {
-		_, _, err := ws.ReadMessage()
+		// Просто ждём, чтобы не блокировать горутину
+		_, _, err := client.ReadMessage()
 		if err != nil {
-			delete(clients, ws)
+			log.Println("Ошибка чтения сообщения:", err)
 			break
 		}
 	}
 }
 
-// Отправка новых логов всем подключенным WebSocket клиентам
-func handleMessages() {
-	for {
-		logEntry := <-broadcast
+// Обработчик для POST-запросов на добавление логов
+func handleLogs(w http.ResponseWriter, r *http.Request) {
+	var data Data
 
-		message, err := json.Marshal(logEntry)
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Не удалось прочитать тело запроса", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		http.Error(w, "Неверный формат JSON", http.StatusBadRequest)
+		return
+	}
+
+	insertAndBroadcastData(data.Tab, data.Status, data.Data)
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+// Функция для добавления данных в лог-файл и отправки через WebSocket
+func insertAndBroadcastData(tab, status, data string) {
+	logDir := "./logs/"
+	// Создаем директорию, если она не существует
+	err := os.MkdirAll(logDir, os.ModePerm)
+	if err != nil {
+		log.Printf("Ошибка при создании директории логов: %v\n", err)
+		return
+	}
+
+	// Создаем имя файла с текущей датой
+	logFile := fmt.Sprintf("%sbuild_log_%s.log", logDir, time.Now().Format("2006-01-02"))
+	logEntry := fmt.Sprintf("%s [%s] %s: %s\n", time.Now().Format("15:04:05"), tab, status, data)
+
+	// Открываем файл для записи логов
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("Ошибка записи лога: %v\n", err)
+		return
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(logEntry); err != nil {
+		log.Printf("Ошибка записи в лог-файл: %v\n", err)
+	}
+
+	// Отправка данных через WebSocket
+	if client != nil {
+		message, _ := json.Marshal(Data{Tab: tab, Status: status, Data: data})
+		err := client.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
-			log.Println("Ошибка при сериализации сообщения:", err)
+			log.Println("Ошибка отправки сообщения:", err)
+			client.Close()
+			client = nil // сбрасываем клиент на nil при ошибке
+		}
+	}
+}
+
+// Ежедневное обновление
+func dailyUpdate() {
+	for {
+		now := time.Now().Format("2006-01-02")
+		insertAndBroadcastData("packages-common", "info", now)
+		time.Sleep(24 * time.Hour)
+	}
+}
+
+// Добавляем функцию для архивирования логов
+func archiveLogs(files []string, archiveName string) error {
+	archive, err := os.Create(archiveName)
+	if err != nil {
+		return fmt.Errorf("не удалось создать архив: %v", err)
+	}
+	defer archive.Close()
+
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close()
+
+	for _, file := range files {
+		if err := addFileToZip(zipWriter, file); err != nil {
+			return fmt.Errorf("ошибка при добавлении файла в архив: %v", err)
+		}
+		if err := os.Remove(file); err != nil { // Удаляем файл после добавления в архив
+			log.Printf("не удалось удалить файл %s: %v", file, err)
+		}
+	}
+	return nil
+}
+
+// Функция для добавления файла в архив
+func addFileToZip(zipWriter *zip.Writer, filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	wr, err := zipWriter.Create(filepath.Base(filename))
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(wr, file)
+	return err
+}
+
+// Функция еженедельной архивации
+func weeklyArchive() {
+	for {
+		// Проверяем каждое воскресенье в полночь
+		now := time.Now()
+		nextWeek := now.AddDate(0, 0, 7-int(now.Weekday()))
+		time.Sleep(time.Until(nextWeek))
+
+		logDir := "./logs/"
+		files, err := filepath.Glob(logDir + "build_log_*.log")
+		if err != nil {
+			log.Println("ошибка при получении списка логов:", err)
 			continue
 		}
 
-		// Отправка сообщения всем клиентам
-		for client := range clients {
-			err := client.WriteMessage(websocket.TextMessage, message)
-			if err != nil {
-				log.Println("Ошибка при отправке сообщения клиенту:", err)
-				client.Close()
-				delete(clients, client)
+		if len(files) > 0 {
+			archiveName := fmt.Sprintf("%s/archive_%s.zip", logDir, now.Format("2006-01-02"))
+			if err := archiveLogs(files, archiveName); err != nil {
+				log.Println("ошибка при архивировании:", err)
+			} else {
+				log.Printf("архив %s создан", archiveName)
 			}
 		}
 	}
 }
 
 func main() {
-	// Инициализация базы данных
-	initDB()
-	defer db.Close()
-
-	// Запуск горутины для обработки WebSocket сообщений
-	go handleMessages()
-
+	http.HandleFunc("/ws", handleConnections)
 	http.HandleFunc("/logs", handleLogs)
-	http.HandleFunc("/ws", handleWebSocket)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./frontend/index.html")
+	})
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend"))))
+
+	go dailyUpdate()
+	go weeklyArchive() // запускаем еженедельное архивирование
+
+	insertAndBroadcastData("packages-common", "success", "2024-10-18 23:13:11 trs.auth 2.14.6 by antipov_sv")
 
 	log.Println("Сервер запущен на порту 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.ListenAndServe(":8080", nil)
 }
