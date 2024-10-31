@@ -74,18 +74,16 @@ func handleLogs(w http.ResponseWriter, r *http.Request) {
 // Функция для добавления данных в лог-файл и отправки через WebSocket
 func insertAndBroadcastData(tab, status, data string) {
 	logDir := "./logs/"
-	// Создаем директорию, если она не существует
 	err := os.MkdirAll(logDir, os.ModePerm)
 	if err != nil {
 		log.Printf("Ошибка при создании директории логов: %v\n", err)
 		return
 	}
 
-	// Создаем имя файла с текущей датой
 	logFile := fmt.Sprintf("%sbuild_log_%s.log", logDir, time.Now().Format("2006-01-02"))
 	logEntry := fmt.Sprintf("%s [%s] %s: %s\n", time.Now().Format("15:04:05"), tab, status, data)
 
-	// Открываем файл для записи логов
+	// Запись в лог-файл
 	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("Ошибка записи лога: %v\n", err)
@@ -100,12 +98,15 @@ func insertAndBroadcastData(tab, status, data string) {
 	// Отправка данных через WebSocket
 	if client != nil {
 		message, _ := json.Marshal(Data{Tab: tab, Status: status, Data: data})
+		log.Println("Отправка сообщения через WebSocket:", string(message))
 		err := client.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
 			log.Println("Ошибка отправки сообщения:", err)
-			client.Close()
-			client = nil // сбрасываем клиент на nil при ошибке
+			// client.Close() // временно закомментируем, чтобы увидеть, не вызывает ли это проблемы
+			client = nil
 		}
+	} else {
+		log.Println("Нет активного WebSocket-соединения для отправки сообщения")
 	}
 }
 
