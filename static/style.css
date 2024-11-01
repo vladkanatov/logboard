@@ -1,0 +1,71 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden; /* Отключаем горизонтальную прокрутку */
+}
+
+.container {
+    width: 100%; /* Установим ширину на 100% */
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.tab-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.tab-button:hover {
+    background-color: #0056b3;
+}
+
+/* Логи занимают всю ширину контейнера */
+.log-display {
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 400px; /* Фиксированная высота */
+    overflow-y: auto;
+    width: calc(100% - 40px); /* Учитываем отступы */
+    box-sizing: border-box; /* Чтобы padding учитывался в ширине */
+}
+
+.success { color: green; }
+.error { color: red; }
+.info { color: blue; }
+
+.date-divider {
+    color: #555;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}

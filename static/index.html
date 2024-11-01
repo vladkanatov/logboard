@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Logs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Log Viewer</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="setCurrentTab('packages-common')">Packages-Common</button>
+            <button class="tab-button" onclick="setCurrentTab('eap')">EAP</button>
+            <button class="tab-button" onclick="setCurrentTab('sdk')">SDK</button>
+        </div>
+        <div id="logDisplay" class="log-display"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
