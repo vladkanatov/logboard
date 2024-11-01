@@ -34,9 +34,6 @@ COPY --from=builder /app-server .
 # Копируем статические файлы (frontend)
 COPY --from=builder /app/static /home/appuser/static
 
-# Меняем права на исполняемый файл и статические файлы
-RUN chown -R appuser:appuser /home/appuser
-
 # Переходим на пользователя с ограниченными правами
 USER appuser
 

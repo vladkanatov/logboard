@@ -18,11 +18,21 @@ type RequestData struct {
 
 var logMutex sync.Mutex
 
-// Инициализация логов
-func initLogsDir() {
+// Функция для инициализации директории логов и создания файла при необходимости
+func ensureLogFile(tab string) (*os.File, error) {
+	// Проверка существования директории logs
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		os.Mkdir("logs", 0755)
+		if err := os.Mkdir("logs", 0755); err != nil {
+			log.Fatalf("Failed to create logs directory: %v", err)
+		}
 	}
+
+	filename := "logs/" + tab + ".log"
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
 // Функция для записи лога, добавляющая разделитель для нового дня
@@ -30,9 +40,9 @@ func logRequest(data RequestData) error {
 	logMutex.Lock()
 	defer logMutex.Unlock()
 
-	filename := "logs/" + data.Tab + ".log"
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := ensureLogFile(data.Tab)
 	if err != nil {
+		log.Printf("Failed to open log file: %v", err)
 		return err
 	}
 	defer file.Close()
@@ -49,6 +59,9 @@ func logRequest(data RequestData) error {
 
 	logEntry := data.Status + ": " + data.Data + "\n"
 	_, err = file.WriteString(logEntry)
+	if err != nil {
+		log.Printf("Failed to write log entry: %v", err)
+	}
 	return err
 }
 
@@ -83,9 +96,8 @@ func handleLogRead(w http.ResponseWriter, r *http.Request) {
 
 	file, err := os.Open("logs/" + tab + ".log")
 	if os.IsNotExist(err) {
-		// Если файл не существует, возвращаем пустой ответ
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte{}) // Пустой ответ
+		w.Write([]byte{}) // Пустой ответ, если файл не существует
 		return
 	} else if err != nil {
 		http.Error(w, "Error opening log file", http.StatusInternalServerError)
@@ -97,7 +109,6 @@ func handleLogRead(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	initLogsDir()
 	http.HandleFunc("/log", handleRequest)                  // Ожидает POST-запросы с `tab` в теле
 	http.HandleFunc("/logs", handleLogRead)                 // Ожидает GET-запросы для чтения логов
 	http.Handle("/", http.FileServer(http.Dir("./static"))) // Отдает статические файлы для фронтенда

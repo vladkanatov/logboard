@@ -7,5 +7,5 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /var/lib/jenkins/build_logging/logs:/home/appuser/logs
+      - ./logs:/home/appuser/logs
     restart: always
