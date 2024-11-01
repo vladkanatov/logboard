@@ -32,7 +32,7 @@ WORKDIR /home/appuser
 COPY --from=builder /app-server .
 
 # Копируем статические файлы (frontend)
-COPY --from=builder /app/frontend /home/appuser/frontend
+COPY --from=builder /app/static /home/appuser/static
 
 # Меняем права на исполняемый файл и статические файлы
 RUN chown -R appuser:appuser /home/appuser
