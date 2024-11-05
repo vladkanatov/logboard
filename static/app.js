@@ -36,6 +36,9 @@ function displayLogs(data) {
             logLine.textContent = line;
         }
 
+        const formattedLine = line.replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
+
         logDisplay.appendChild(logLine);
     });
 }
