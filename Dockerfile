@@ -8,7 +8,7 @@ RUN apk add --no-cache git gcc musl-dev
 WORKDIR /app
 
 # Копируем файлы go.mod и go.sum для установки зависимостей
-COPY go.mod go.sum ./
+COPY go.mod ./
 
 # Загружаем зависимости
 RUN go mod download
