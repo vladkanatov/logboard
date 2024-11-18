@@ -1,7 +1,3 @@
-module jenkins_logs
+module logboard
 
-go 1.23.2
-
-require (
-	github.com/gorilla/websocket v1.5.3
-)
+go 1.23.3

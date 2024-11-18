@@ -66,7 +66,7 @@ func logRequest(data RequestData) error {
 }
 
 // Обработчик для входящих данных
-func handleRequest(w http.ResponseWriter, r *http.Request) {
+func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	var requestData RequestData
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -87,7 +87,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 // Обработчик для отправки логов в ответе на запросы фронтенда
-func handleLogRead(w http.ResponseWriter, r *http.Request) {
+func HandleLogRead(w http.ResponseWriter, r *http.Request) {
 	tab := r.URL.Query().Get("tab")
 	if tab == "" {
 		http.Error(w, "Tab parameter is required", http.StatusBadRequest)
@@ -109,11 +109,11 @@ func handleLogRead(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/log", handleRequest)                  // Ожидает POST-запросы с `tab` в теле
-	http.HandleFunc("/logs", handleLogRead)                 // Ожидает GET-запросы для чтения логов
+	http.HandleFunc("/log", HandleRequest)                  // Ожидает POST-запросы с `tab` в теле
+	http.HandleFunc("/logs", HandleLogRead)                 // Ожидает GET-запросы для чтения логов
 	http.Handle("/", http.FileServer(http.Dir("./static"))) // Отдает статические файлы для фронтенда
-	log.Println("Server started on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Println("Server started on :8000")
+	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal(err)
 	}
 }

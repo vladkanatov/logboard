@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  build-log-server:
-    image: build-logging:latest
-    container_name: build_log_server
+  logboard:
+    image: ghcr.io/vladkanatov/logboard:latest
+    container_name: logboard
     ports:
-      - "8080:8080"
+      - "8000:8000"
     volumes:
       - ./logs:/home/appuser/logs
     restart: always

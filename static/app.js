@@ -13,7 +13,7 @@ async function fetchLogs() {
     displayLogs(data);
 }
 
-// Функция для отображения логов с цветовым выделением
+// Функция для отображения логов с цветовым выделением и обработкой Markdown-ссылок
 function displayLogs(data) {
     const logDisplay = document.getElementById('logDisplay');
     logDisplay.innerHTML = ''; // Очищаем старые логи
@@ -24,18 +24,18 @@ function displayLogs(data) {
         // Проверяем статус по ключевым словам и добавляем соответствующий класс
         if (line.startsWith('success:')) {
             logLine.classList.add('success');
-            logLine.textContent = line.slice(8); // Убираем "success:" из вывода
+            line = line.slice(8).trim(); // Убираем "success:" из вывода и пробелы
         } else if (line.startsWith('error:')) {
             logLine.classList.add('error');
-            logLine.textContent = line.slice(6); // Убираем "error:" из вывода
+            line = line.slice(6).trim(); // Убираем "error:" из вывода и пробелы
         } else if (line.startsWith('info:')) {
             logLine.classList.add('info');
-            logLine.textContent = line.slice(5); // Убираем "info:" из вывода
+            line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
         } else if (line.includes('---')) {  // Новый день
             logLine.classList.add('date-divider');
-            logLine.textContent = line;
         }
 
+        // Обработка Markdown-ссылок в формате [текст](ссылка)
         const formattedLine = line.replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, '<a href="$2" target="_blank">$1</a>');
         logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
 
