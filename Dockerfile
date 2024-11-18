@@ -1,44 +1,20 @@
-# Стадия 1: сборка
-FROM golang:1.23-alpine AS builder
-
-# Устанавливаем зависимости для сборки
-RUN apk add --no-cache git gcc musl-dev
+# Указываем базовый образ для сборки
+FROM golang:1.23 AS builder
 
 # Создаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы go.mod и go.sum для установки зависимостей
-COPY go.mod ./
-
-# Загружаем зависимости
-RUN go mod download
-
-# Копируем остальные файлы проекта
+# Копируем файлы проекта в контейнер
 COPY . .
 
-# Собираем бинарный файл с флагами оптимизации
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o /app-server .
+# Сборка CLI-приложения
+RUN CGO_ENABLED=0 GOOS=linux go build -o logboard cmd/main.go
 
-# Стадия 2: финальный контейнер
+# Финальный этап: минимальный образ для запуска
 FROM alpine:latest
 
-# Создаем пользователя для безопасного запуска
-RUN adduser -D -u 1000 appuser
+# Копируем скомпилированный бинарный файл из builder
+COPY --from=builder /app/logboard /usr/local/bin/logboard
 
-# Устанавливаем директорию для приложения
-WORKDIR /home/appuser
-
-# Копируем бинарник из стадии сборки
-COPY --from=builder /app-server .
-
-# Копируем статические файлы (frontend)
-COPY --from=builder /app/static /home/appuser/static
-
-# Переходим на пользователя с ограниченными правами
-USER appuser
-
-# Экспортируем порт для доступа к приложению
-EXPOSE 8080
-
-# Запуск приложения
-CMD ["./app-server"]
+# Задание дефолтной команды при запуске
+ENTRYPOINT ["logboard"]
