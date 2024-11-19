@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   logboard:
     image: ghcr.io/vladkanatov/logboard:latest
     container_name: logboard
     ports:
-      - "8000:8000"
+      - '8000:8000'
     volumes:
       - ./logs:/home/appuser/logs
     restart: always
