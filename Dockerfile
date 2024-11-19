@@ -13,8 +13,14 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o logboard cmd/main.go
 # Финальный этап: минимальный образ для запуска
 FROM alpine:latest
 
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
 # Копируем скомпилированный бинарный файл из builder
-COPY --from=builder /app/logboard /usr/local/bin/logboard
+COPY --from=builder /app/logboard /app/logboard
+
+# Копируем папку static в стандартное место
+COPY --from=builder /app/static /app/static
 
 # Задание дефолтной команды при запуске
-ENTRYPOINT ["logboard"]
+ENTRYPOINT ["/app/logboard"]
