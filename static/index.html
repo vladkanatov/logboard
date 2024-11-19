@@ -9,7 +9,7 @@
   <body>
     <div class="container">
       <h1>Log Viewer</h1>
-      <div>
+      <div class="div-butt">
         <div class="tabs">
           <button class="tab-button" onclick="setCurrentTab('packages-common')"
             >Packages-Common</button
@@ -18,8 +18,10 @@
           <button class="tab-button" onclick="setCurrentTab('sdk')">SDK</button>
         </div>
         <div>
-          <span>sort</span>
-          <button class="sort-button" onclick="">&#x2191;&#x2193;</button>
+          <span>Reverse</span>
+          <button class="sort-button" onclick="chgSortDirHandler()"
+            >&#x2191;&#x2193;</button
+          >
         </div>
       </div>
       <div id="logDisplay" class="log-display"></div>

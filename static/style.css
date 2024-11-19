@@ -36,6 +36,7 @@ h1 {
 }
 
 .tabs {
+  flex: 1;
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
@@ -57,13 +58,19 @@ h1 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #ccc;
-  color: white;
+  background-color: #eee;
+  color: black;
   transition: background-color 0.3s;
 }
 
 .tab-button:hover {
   background-color: #0056b3;
+}
+
+.div-butt {
+  display: flex;
+  width: calc(100% - 40px);
+  justify-content: space-between;
 }
 
 /* Логи занимают оставшуюся высоту контейнера */
@@ -84,6 +91,7 @@ h1 {
 }
 .info {
   color: blue;
+  border: 1px solid black;
 }
 
 .date-divider {
