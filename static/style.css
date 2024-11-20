@@ -14,7 +14,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh; /* Задаем высоту для body */
-  overflow: visible;
+  overflow: hidden;
 }
 
 .container {
@@ -52,6 +52,7 @@ h1 {
   color: white;
   transition: background-color 0.3s;
 }
+
 .sort-button {
   padding: 10px 15px;
   margin: 0 5px;
@@ -84,6 +85,7 @@ h1 {
   width: 100%;
   box-sizing: border-box;
   flex: 1;
+  overflow: scroll;
 }
 
 .reversed {
@@ -109,7 +111,8 @@ h1 {
 }
 
 #search-input {
-  height: 2%;
+  height: 30px;
+  border: 1px lightgray solid;
   border-radius: 5px;
   font-size: 1em;
 }
