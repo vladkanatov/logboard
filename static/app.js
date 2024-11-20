@@ -4,18 +4,17 @@ const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
 searchInput.value = 'sasd';
 
+const ws = new WebSocket('ws://localhost:8000/logs?tab=packages-common');
+
 // Устанавливает текущую вкладку и загружает данные для нее
 function setCurrentTab(tab) {
   currentTab = tab;
   searchInput.value = searchText[currentTab];
-  fetchLogs();
 }
 searchInput.addEventListener('input', () => {
   searchText[currentTab] = searchInput.value;
   console.log(searchText, currentTab);
 });
-
-let isStright = true;
 
 const chgSortDirHandler = () => {
   logDisplay.classList.contains('reversed')
@@ -23,54 +22,34 @@ const chgSortDirHandler = () => {
     : logDisplay.classList.replace('stright', 'reversed');
 };
 
-const reverseSwitch = () => {};
-const chgSortDir = reverseSwitch();
+ws.addEventListener('open', (event) => {
+  console.log('Websocket connection opened');
+});
+ws.addEventListener('close', (event) => {
+  console.log('Websocket connection closed');
+});
+ws.onmessage = function (line) {
+  const logLine = document.createElement('div');
+  if (line.data.startsWith('success:')) {
+    logLine.classList.add('success', 'log');
+    line = line.slice(8).trim(); // Убираем "success:" из вывода и пробелы
+  } else if (line.data.startsWith('error:')) {
+    logLine.classList.add('error', 'log');
+    line = line.data.slice(6).trim(); // Убираем "error:" из вывода и пробелы
+  } else if (line.data.startsWith('info:')) {
+    logLine.classList.add('info', 'log');
+    line = line.data.slice(5).trim(); // Убираем "info:" из вывода и пробелы
+  } else {
+    line = line.data;
+    logLine.classList.add('date-divider');
+  }
 
-// Функция для получения логов выбранной вкладки
-async function fetchLogs() {
-  const response = await fetch(`/logs?tab=${currentTab}`);
-  const data = await response.text();
-  displayLogs(data);
-}
-async function fetchQuery() {
-  const response = await fetch(`/logs`, 'POST');
-  const data = await response.text();
-  displayLogs(data);
-}
+  // Обработка Markdown-ссылок в формате [текст](ссылка)
+  const formattedLine = line.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g,
+    '<a href="$2" target="_blank">$1</a>',
+  );
+  logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
 
-// Функция для отображения логов с цветовым выделением и обработкой Markdown-ссылок
-function displayLogs(data) {
-  logDisplay.innerHTML = ''; // Очищаем старые логи
-  data.split('\n').forEach((line) => {
-    const logLine = document.createElement('div');
-    // Проверяем статус по ключевым словам и добавляем соответствующий класс
-    if (line.startsWith('success:')) {
-      logLine.classList.add('success', 'log');
-      line = line.slice(8).trim(); // Убираем "success:" из вывода и пробелы
-    } else if (line.startsWith('error:')) {
-      logLine.classList.add('error', 'log');
-      line = line.slice(6).trim(); // Убираем "error:" из вывода и пробелы
-    } else if (line.startsWith('info:')) {
-      logLine.classList.add('info', 'log');
-      line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
-    } else if (line.includes('---')) {
-      // Новый день
-      logLine.classList.add('date-divider');
-    }
-
-    // Обработка Markdown-ссылок в формате [текст](ссылка)
-    const formattedLine = line.replace(
-      /\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g,
-      '<a href="$2" target="_blank">$1</a>',
-    );
-    logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
-
-    logDisplay.appendChild(logLine);
-  });
-}
-
-// Обновление логов каждую секунду
-setInterval(fetchLogs, 1000);
-
-// Начальная загрузка логов для первой вкладки
-fetchLogs();
+  logDisplay.appendChild(logLine);
+};

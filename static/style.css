@@ -14,7 +14,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh; /* Задаем высоту для body */
-  overflow: hidden; /* Отключаем прокрутку */
+  overflow: visible;
 }
 
 .container {
@@ -76,17 +76,14 @@ h1 {
 /* Логи занимают оставшуюся высоту контейнера */
 .log-display {
   display: flex;
-  /* flex: 1; Занимает оставшееся пространство */
-  white-space: pre-wrap;
   justify-content: start;
   background-color: #f8f9fa;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  overflow-y: auto;
-  width: 100%; /* Учитываем padding */
+  width: 100%;
   box-sizing: border-box;
-  height: 100%;
+  flex: 1;
 }
 
 .reversed {
@@ -109,6 +106,12 @@ h1 {
 .log {
   background-color: #eee;
   margin: 2px;
+}
+
+#search-input {
+  height: 2%;
+  border-radius: 5px;
+  font-size: 1em;
 }
 
 .date-divider {
