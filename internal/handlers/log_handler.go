@@ -26,16 +26,3 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
-// HandleLogRead обрабатывает GET-запросы для чтения логов.
-func HandleLogRead(w http.ResponseWriter, r *http.Request) {
-	tab := r.URL.Query().Get("tab")
-	if tab == "" {
-		http.Error(w, "Tab parameter is required", http.StatusBadRequest)
-		return
-	}
-
-	if err := ServeLogFile(tab, w, r); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
