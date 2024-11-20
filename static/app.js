@@ -1,26 +1,29 @@
 let currentTab = 'packages-common';
+let searchText = { 'packages-common': '', eap: '', sdk: '' };
+const logDisplay = document.getElementById('log-display');
+const searchInput = document.getElementById('search-input');
+searchInput.value = 'sasd';
 
 // Устанавливает текущую вкладку и загружает данные для нее
 function setCurrentTab(tab) {
   currentTab = tab;
+  searchInput.value = searchText[currentTab];
   fetchLogs();
 }
+searchInput.addEventListener('input', () => {
+  searchText[currentTab] = searchInput.value;
+  console.log(searchText, currentTab);
+});
 
 let isStright = true;
 
 const chgSortDirHandler = () => {
-  chgSortDir();
-  fetchLogs();
+  logDisplay.classList.contains('reversed')
+    ? logDisplay.classList.replace('reversed', 'stright')
+    : logDisplay.classList.replace('stright', 'reversed');
 };
 
-const reverseSwitch = () => {
-  let sortStright = true;
-  return () => {
-    sortStright = !sortStright;
-    isStright = sortStright;
-    return sortStright;
-  };
-};
+const reverseSwitch = () => {};
 const chgSortDir = reverseSwitch();
 
 // Функция для получения логов выбранной вкладки
@@ -37,12 +40,8 @@ async function fetchQuery() {
 
 // Функция для отображения логов с цветовым выделением и обработкой Markdown-ссылок
 function displayLogs(data) {
-  let dataSorted;
-  const logDisplay = document.getElementById('logDisplay');
   logDisplay.innerHTML = ''; // Очищаем старые логи
-  console.log(isStright);
-  dataSorted = isStright ? data.split('\n') : data.split('\n').reverse();
-  dataSorted.forEach((line) => {
+  data.split('\n').forEach((line) => {
     const logLine = document.createElement('div');
     // Проверяем статус по ключевым словам и добавляем соответствующий класс
     if (line.startsWith('success:')) {

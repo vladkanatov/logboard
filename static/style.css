@@ -69,21 +69,32 @@ h1 {
 
 .div-butt {
   display: flex;
-  width: calc(100% - 40px);
+  width: 100%;
   justify-content: space-between;
 }
 
 /* Логи занимают оставшуюся высоту контейнера */
 .log-display {
-  flex: 1; /* Занимает оставшееся пространство */
+  display: flex;
+  /* flex: 1; Занимает оставшееся пространство */
   white-space: pre-wrap;
+  justify-content: start;
   background-color: #f8f9fa;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow-y: auto;
-  width: calc(100% - 40px); /* Учитываем padding */
+  width: 100%; /* Учитываем padding */
   box-sizing: border-box;
+  height: 100%;
+}
+
+.reversed {
+  flex-direction: column-reverse;
+}
+
+.stright {
+  flex-direction: column;
 }
 
 .error {
@@ -96,7 +107,8 @@ h1 {
   color: green;
 }
 .log {
-  border: 1px solid black;
+  background-color: #eee;
+  margin: 2px;
 }
 
 .date-divider {
