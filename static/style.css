@@ -91,6 +91,11 @@ h1 {
 }
 .info {
   color: blue;
+}
+.success {
+  color: green;
+}
+.log {
   border: 1px solid black;
 }
 

@@ -29,6 +29,11 @@ async function fetchLogs() {
   const data = await response.text();
   displayLogs(data);
 }
+async function fetchQuery() {
+  const response = await fetch(`/logs`, 'POST');
+  const data = await response.text();
+  displayLogs(data);
+}
 
 // Функция для отображения логов с цветовым выделением и обработкой Markdown-ссылок
 function displayLogs(data) {
@@ -41,13 +46,13 @@ function displayLogs(data) {
     const logLine = document.createElement('div');
     // Проверяем статус по ключевым словам и добавляем соответствующий класс
     if (line.startsWith('success:')) {
-      logLine.classList.add('success');
+      logLine.classList.add('success', 'log');
       line = line.slice(8).trim(); // Убираем "success:" из вывода и пробелы
     } else if (line.startsWith('error:')) {
-      logLine.classList.add('error');
+      logLine.classList.add('error', 'log');
       line = line.slice(6).trim(); // Убираем "error:" из вывода и пробелы
     } else if (line.startsWith('info:')) {
-      logLine.classList.add('info');
+      logLine.classList.add('info', 'log');
       line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
     } else if (line.includes('---')) {
       // Новый день
