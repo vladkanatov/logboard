@@ -51,11 +51,6 @@ func HandleWebSocketLogs(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("New WebSocket client connected for tab: %s", tab)
 
-	// Отправляем содержимое файла логов при подключении
-	if err := sendLogFile(tab, conn); err != nil {
-		log.Printf("Error sending log file: %v", err)
-	}
-
 	// Постоянно отправляем новые строки из файла (tailing)
 	if err := tailLogFile(tab, conn); err != nil {
 		log.Printf("Error tailing log file: %v", err)
@@ -75,36 +70,6 @@ func HandleWebSocketLogs(w http.ResponseWriter, r *http.Request) {
 	delete(clients[tab], conn)
 	mu.Unlock()
 	log.Printf("WebSocket client disconnected from tab: %s", tab)
-}
-
-// sendLogFile отправляет содержимое файла логов клиенту.
-func sendLogFile(tab string, conn *websocket.Conn) error {
-	filePath := "logs/" + tab + ".log"
-	file, err := os.Open(filePath)
-	if os.IsNotExist(err) {
-		// Если файл не существует, просто отправляем пустой ответ
-		return conn.WriteMessage(websocket.TextMessage, []byte("No logs available"))
-	} else if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Считываем файл построчно и отправляем клиенту
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(line)); err != nil {
-			log.Printf("Error sending log line: %v", err)
-			return err
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Printf("Error reading log file: %v", err)
-		return err
-	}
-
-	return nil
 }
 
 // tailLogFile следит за файлом в реальном времени и отправляет новые строки через WebSocket.
