@@ -52,9 +52,9 @@ func HandleWebSocketLogs(w http.ResponseWriter, r *http.Request) {
 	log.Printf("New WebSocket client connected for tab: %s", tab)
 
 	// Отправляем содержимое файла логов при подключении
-	// if err := sendLogFile(tab, conn); err != nil {
-	// 	log.Printf("Error sending log file: %v", err)
-	// }
+	if err := sendLogFile(tab, conn); err != nil {
+		log.Printf("Error sending log file: %v", err)
+	}
 
 	// Постоянно отправляем новые строки из файла (tailing)
 	if err := tailLogFile(tab, conn); err != nil {
