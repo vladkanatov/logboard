@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"logboard/internal/models"
 	"net/http"
 )
@@ -25,4 +26,19 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func HandleLogFile(w http.ResponseWriter, r *http.Request) {
+	// Получаем значение параметра `tab` из URL
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		http.Error(w, "Missing 'tab' parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Вызываем ServeLogFile и обрабатываем ошибки
+	if err := ServeLogFile(tab, w, r); err != nil {
+		http.Error(w, "Failed to serve log file", http.StatusInternalServerError)
+		log.Printf("Error serving log file for tab '%s': %v", tab, err)
+	}
 }
