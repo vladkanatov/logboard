@@ -11,17 +11,27 @@ const wsocks = {
   eap: null,
   sdk: null,
 };
+fetchAllLogs();
+
+wsocks[currentTab].onopen = (event) => {
+  console.log(`Websocket ${currentTab} opened`);
+};
+wsocks[currentTab].onclose = (event) => {
+  console.log(`Websocket ${currentTab} closed`);
+};
 
 // Устанавливает текущую вкладку и загружает данные для нее
 function setCurrentTab(tab) {
   wsocks[currentTab].close();
-  wsocks[currentTab].removeEventListener('close', wsocks[currentTab]);
   logDisplay.replaceChildren();
   searchText[currentTab] = searchInput.value;
   currentTab = tab;
-  const logDisplay = async fetch('http://localhost:8000');
-  
-  wsocks[currentTab].onmessage = lineHandler;
+  if (wsocks[currentTab] === null)
+    wsocks[currentTab] = new WebSocket(
+      `ws://localhost:8000/logs?tab=${currentTab}`,
+    );
+  fetchAllLogs();
+  wsocks[currentTab].onmessage = (event) => lineHandler(event.data);
   wsocks[currentTab].addEventListener('open', (event) => {
     console.log(`Websocket ${currentTab} opened`);
   });
@@ -31,25 +41,33 @@ function setCurrentTab(tab) {
   searchInput.value = searchText[currentTab];
 }
 
+async function fetchAllLogs() {
+  const response = await fetch(
+    `http://localhost:8000/all_logs?tab=${currentTab}`,
+  );
+  const data = await response.text();
+  data.split('\n').forEach((el) => lineHandler(el));
+}
+
 const chgSortDirHandler = () => {
   logDisplay.classList.contains('reversed')
     ? logDisplay.classList.replace('reversed', 'stright')
     : logDisplay.classList.replace('stright', 'reversed');
+  logDisplay.scrollTop = logDisplay.scrollHeight;
 };
 
 const lineHandler = (line) => {
   const logLine = document.createElement('div');
-  if (line.data.startsWith('success:')) {
+  if (line.startsWith('success:')) {
     logLine.classList.add('success', 'log');
-    line = line.data.slice(8).trim(); // Убираем "success:" из вывода и пробелы
-  } else if (line.data.startsWith('error:')) {
+    line = line.slice(8).trim(); // Убираем "success:" из вывода и пробелы
+  } else if (line.startsWith('error:')) {
     logLine.classList.add('error', 'log');
-    line = line.data.slice(6).trim(); // Убираем "error:" из вывода и пробелы
-  } else if (line.data.startsWith('info:')) {
+    line = line.slice(6).trim(); // Убираем "error:" из вывода и пробелы
+  } else if (line.startsWith('info:')) {
     logLine.classList.add('info', 'log');
-    line = line.data.slice(5).trim(); // Убираем "info:" из вывода и пробелы
+    line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
   } else {
-    line = line.data;
     logLine.classList.add('date-divider', 'log');
   }
 
