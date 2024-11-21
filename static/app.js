@@ -4,14 +4,30 @@ const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
 searchInput.value = '';
 
-const ws = new WebSocket('ws://localhost:8000/logs?tab=packages-common');
+const wsocks = {
+  'packages-common': new WebSocket(
+    'ws://localhost:8000/logs?tab=packages-common',
+  ),
+  eap: null,
+  sdk: null,
+};
 
 // Устанавливает текущую вкладку и загружает данные для нее
 function setCurrentTab(tab) {
-  let logs = document.getElementsByClassName('log');
+  wsocks[currentTab].close();
+  wsocks[currentTab].removeEventListener('close', wsocks[currentTab]);
   logDisplay.replaceChildren();
   searchText[currentTab] = searchInput.value;
   currentTab = tab;
+  const logDisplay = async fetch('http://localhost:8000');
+  
+  wsocks[currentTab].onmessage = lineHandler;
+  wsocks[currentTab].addEventListener('open', (event) => {
+    console.log(`Websocket ${currentTab} opened`);
+  });
+  wsocks[currentTab].addEventListener('close', (event) => {
+    console.log(`Websocket ${currentTab} closed`);
+  });
   searchInput.value = searchText[currentTab];
 }
 
@@ -21,13 +37,7 @@ const chgSortDirHandler = () => {
     : logDisplay.classList.replace('stright', 'reversed');
 };
 
-ws.addEventListener('open', (event) => {
-  console.log('Websocket connection opened');
-});
-ws.addEventListener('close', (event) => {
-  console.log('Websocket connection closed');
-});
-ws.onmessage = function (line) {
+const lineHandler = (line) => {
   const logLine = document.createElement('div');
   if (line.data.startsWith('success:')) {
     logLine.classList.add('success', 'log');
@@ -52,6 +62,8 @@ ws.onmessage = function (line) {
 
   logDisplay.appendChild(logLine);
 };
+
+wsocks[currentTab].onmessage = lineHandler;
 
 const searching = (event) => {
   // searchText[currentTab] = searchInput.value;
