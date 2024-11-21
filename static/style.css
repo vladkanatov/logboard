@@ -85,7 +85,7 @@ h1 {
   width: 100%;
   box-sizing: border-box;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 .reversed {
@@ -126,4 +126,9 @@ h1 {
   font-size: 1.2em;
   border-top: 1px solid #ddd;
   padding-top: 10px;
+}
+
+.cont {
+  height: 100%;
+  overflow: scroll;
 }
