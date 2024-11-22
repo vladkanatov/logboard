@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"logboard/internal/models"
 	"net/http"
@@ -80,22 +81,24 @@ func HandleWebSocketLogs(w http.ResponseWriter, r *http.Request) {
 // tailLogFile следит за файлом в реальном времени и отправляет новые строки через WebSocket.
 func tailLogFile(tab string, conn *websocket.Conn) error {
 	filePath := "logs/" + tab + ".log"
-	file, err := os.Open(filePath)
+
+	// Открываем файл или создаем, если его нет
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open or create file: %w", err)
 	}
 	defer file.Close()
 
-	// Позиция курсора на начало файла
+	// Получаем размер файла для установки начального оффсета
 	stat, err := file.Stat()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
 	offset := stat.Size()
 
 	for {
-		// Считываем новые строки, если файл увеличился
+		// Перемещаем курсор на последний оффсет
 		file.Seek(offset, 0)
 
 		scanner := bufio.NewScanner(file)
@@ -112,14 +115,14 @@ func tailLogFile(tab string, conn *websocket.Conn) error {
 			return err
 		}
 
-		// Обновляем offset для отслеживания новых данных в файле
+		// Обновляем оффсет для чтения новых данных
 		stat, err := file.Stat()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to stat file during read: %w", err)
 		}
 		offset = stat.Size()
 
-		// Пауза перед повторной проверкой (чтобы не нагружать процессор)
+		// Пауза перед следующей проверкой
 		time.Sleep(1 * time.Second)
 	}
 }
