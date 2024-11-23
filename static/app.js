@@ -3,6 +3,8 @@ let searchText = { 'packages-common': '', eap: '', sdk: '' };
 const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
 searchInput.value = '';
+const showDate = true;
+const showTimeInput = document.getElementById('show-date');
 
 const wsocks = {
   'packages-common': new WebSocket(
@@ -44,6 +46,7 @@ function setCurrentTab(tab) {
 async function fetchAllLogs() {
   const response = await fetch(
     `http://localhost:8000/all_logs?tab=${currentTab}`,
+    { cache: 'no-cache' },
   );
   const data = await response.text();
   data.split('\n').forEach((el) => lineHandler(el));
@@ -67,6 +70,7 @@ const lineHandler = (line) => {
   } else if (line.startsWith('info:')) {
     logLine.classList.add('info', 'log');
     line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
+  } else if (line === '') {
   } else {
     logLine.classList.add('date-divider', 'log');
   }
@@ -81,10 +85,9 @@ const lineHandler = (line) => {
   logDisplay.appendChild(logLine);
 };
 
-wsocks[currentTab].onmessage = lineHandler;
+wsocks[currentTab].onmessage = (event) => lineHandler(event.data);
 
 const searching = (event) => {
-  // searchText[currentTab] = searchInput.value;
   let logs = document.getElementsByClassName('log');
   if (searchInput.value.length < 2) {
     for (let log of logs) log.style.display = 'block';
@@ -95,6 +98,11 @@ const searching = (event) => {
         : (log.style.display = 'none');
     }
   }
+};
+const showDateHandler = () => {
+  showDate = !showDate;
+  console.log(showTimeInput.checked);
+  fetchAllLogs();
 };
 
 searchInput.addEventListener('input', searching);
