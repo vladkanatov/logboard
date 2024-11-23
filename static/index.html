@@ -16,21 +16,21 @@
     <div class="container">
       <h1>Log Viewer</h1>
       <div class="div-butt">
-        <div
-          ><span>Filter: </span><input id="search-input" type="text" />
+        <div><span>Filter: </span><input id="search-input" type="text" /> </div>
+        <div>
           <input
             type="checkbox"
             id="show-date"
-            onchange="showDateHandler()"
+            onchange="fetchAllLogs()"
             checked />
           <label for="show-date">Show date</label>
         </div>
         <div class="tabs">
-          <button class="tab-button" onclick="setCurrentTab('packages-common')"
+          <button class="tab-button active-tab" onclick="setCurrentTab(this)"
             >Packages-Common</button
           >
-          <button class="tab-button" onclick="setCurrentTab('eap')">EAP</button>
-          <button class="tab-button" onclick="setCurrentTab('sdk')">SDK</button>
+          <button class="tab-button" onclick="setCurrentTab(this)">EAP</button>
+          <button class="tab-button" onclick="setCurrentTab(this)">SDK</button>
         </div>
         <div>
           <span>Reverse</span>

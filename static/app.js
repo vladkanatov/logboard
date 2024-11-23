@@ -3,15 +3,14 @@ let searchText = { 'packages-common': '', eap: '', sdk: '' };
 const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
 searchInput.value = '';
-const showDate = true;
 const showTimeInput = document.getElementById('show-date');
 
 const wsocks = {
   'packages-common': new WebSocket(
     'ws://localhost:8000/logs?tab=packages-common',
   ),
-  eap: null,
-  sdk: null,
+  eap: new WebSocket('ws://localhost:8000/logs?tab=eap'),
+  sdk: new WebSocket('ws://localhost:8000/logs?tab=sdk'),
 };
 fetchAllLogs();
 
@@ -23,9 +22,13 @@ wsocks[currentTab].onclose = (event) => {
 };
 
 // Устанавливает текущую вкладку и загружает данные для нее
-function setCurrentTab(tab) {
-  wsocks[currentTab].close();
-  logDisplay.replaceChildren();
+function setCurrentTab(obj) {
+  document
+    .getElementsByClassName('active-tab')[0]
+    .classList.remove('active-tab');
+  obj.classList.add('active-tab');
+  let tab = obj.textContent;
+  console.log('tab: ', tab);
   searchText[currentTab] = searchInput.value;
   currentTab = tab;
   if (wsocks[currentTab] === null)
@@ -33,7 +36,7 @@ function setCurrentTab(tab) {
       `ws://localhost:8000/logs?tab=${currentTab}`,
     );
   fetchAllLogs();
-  wsocks[currentTab].onmessage = (event) => lineHandler(event.data);
+  wsocks[currentTab].onmessage = () => lineHandler(event.data);
   wsocks[currentTab].addEventListener('open', (event) => {
     console.log(`Websocket ${currentTab} opened`);
   });
@@ -41,9 +44,11 @@ function setCurrentTab(tab) {
     console.log(`Websocket ${currentTab} closed`);
   });
   searchInput.value = searchText[currentTab];
+  searching();
 }
 
 async function fetchAllLogs() {
+  logDisplay.innerHTML = '';
   const response = await fetch(
     `http://localhost:8000/all_logs?tab=${currentTab}`,
     { cache: 'no-cache' },
@@ -75,13 +80,8 @@ const lineHandler = (line) => {
     logLine.classList.add('date-divider', 'log');
   }
 
-  // Обработка Markdown-ссылок в формате [текст](ссылка)
-  const formattedLine = line.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g,
-    '<a href="$2" target="_blank">$1</a>',
-  );
+  const formattedLine = showTimeInput.checked ? line : line.slice(20); // обработка даты
   logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
-
   logDisplay.appendChild(logLine);
 };
 
@@ -98,11 +98,6 @@ const searching = (event) => {
         : (log.style.display = 'none');
     }
   }
-};
-const showDateHandler = () => {
-  showDate = !showDate;
-  console.log(showTimeInput.checked);
-  fetchAllLogs();
 };
 
 searchInput.addEventListener('input', searching);
