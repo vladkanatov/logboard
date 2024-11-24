@@ -48,7 +48,7 @@ h1 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: lightgray;
+  background-color: gray;
   color: white;
   transition: background-color 0.3s;
 }
@@ -70,8 +70,9 @@ h1 {
 
 .div-butt {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
 }
 
@@ -136,7 +137,7 @@ h1 {
 
 .cont {
   height: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
 
 #time {

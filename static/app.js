@@ -1,24 +1,35 @@
 let currentTab = 'packages-common';
 let searchText = { 'packages-common': '', eap: '', sdk: '' };
+let tabs = ['packages-common', 'eap', 'sdk'];
 const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
-searchInput.value = '';
 const showTimeInput = document.getElementById('show-date');
+const wsocks = {};
 
-const wsocks = {
-  'packages-common': new WebSocket(
-    'ws://localhost:8000/logs?tab=packages-common',
-  ),
-  eap: new WebSocket('ws://localhost:8000/logs?tab=eap'),
-  sdk: new WebSocket('ws://localhost:8000/logs?tab=sdk'),
-};
+tabs.forEach((el) => {
+  wsocks[el] = new WebSocket('ws://localhost:8000/logs?tab=packages-common');
+  wsocks[el].onmessage = (line) => lineHandler(line.data);
+  wsocks[el].addEventListener('open', (event) => {
+    console.log(`Websocket ${el} opened`);
+  });
+  wsocks[currentTab].addEventListener('close', (event) => {
+    console.log(`Websocket ${el} closed`);
+  });
+});
+
 fetchAllLogs();
 
-wsocks[currentTab].onopen = (event) => {
-  console.log(`Websocket ${currentTab} opened`);
-};
-wsocks[currentTab].onclose = (event) => {
-  console.log(`Websocket ${currentTab} closed`);
+//фильтрация
+const searching = () => {
+  let logs = document.getElementsByClassName('log');
+  for (let log of logs) {
+    const textToSearch = showTimeInput.checked
+      ? log.textContent.slice(20)
+      : log.textContent;
+    textToSearch.toLowerCase().includes(searchInput.value.toLowerCase())
+      ? (log.style.display = 'block')
+      : (log.style.display = 'none');
+  }
 };
 
 // Устанавливает текущую вкладку и загружает данные для нее
@@ -27,24 +38,11 @@ function setCurrentTab(obj) {
     .getElementsByClassName('active-tab')[0]
     .classList.remove('active-tab');
   obj.classList.add('active-tab');
-  let tab = obj.textContent;
-  console.log('tab: ', tab);
+  let tab = obj.textContent.toLowerCase();
   searchText[currentTab] = searchInput.value;
   currentTab = tab;
-  if (wsocks[currentTab] === null)
-    wsocks[currentTab] = new WebSocket(
-      `ws://localhost:8000/logs?tab=${currentTab}`,
-    );
   fetchAllLogs();
-  wsocks[currentTab].onmessage = () => lineHandler(event.data);
-  wsocks[currentTab].addEventListener('open', (event) => {
-    console.log(`Websocket ${currentTab} opened`);
-  });
-  wsocks[currentTab].addEventListener('close', (event) => {
-    console.log(`Websocket ${currentTab} closed`);
-  });
   searchInput.value = searchText[currentTab];
-  searching();
 }
 
 async function fetchAllLogs() {
@@ -55,6 +53,7 @@ async function fetchAllLogs() {
   );
   const data = await response.text();
   data.split('\n').forEach((el) => lineHandler(el));
+  searching();
 }
 
 const chgSortDirHandler = () => {
@@ -77,27 +76,13 @@ const lineHandler = (line) => {
     line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
   } else if (line === '') {
   } else {
-    logLine.classList.add('date-divider', 'log');
   }
 
-  const formattedLine = showTimeInput.checked ? line : line.slice(20); // обработка даты
-  logLine.innerHTML = formattedLine; // Вставляем обработанную строку как HTML
+  logLine.innerHTML = showTimeInput.checked ? line : line.slice(20); // обработка даты
+  // Вставляем обработанную строку как HTML
   logDisplay.appendChild(logLine);
 };
 
 wsocks[currentTab].onmessage = (event) => lineHandler(event.data);
-
-const searching = (event) => {
-  let logs = document.getElementsByClassName('log');
-  if (searchInput.value.length < 2) {
-    for (let log of logs) log.style.display = 'block';
-  } else {
-    for (let log of logs) {
-      log.textContent.toLowerCase().includes(event.target.value.toLowerCase())
-        ? (log.style.display = 'block')
-        : (log.style.display = 'none');
-    }
-  }
-};
 
 searchInput.addEventListener('input', searching);
