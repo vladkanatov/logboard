@@ -7,12 +7,12 @@ const showTimeInput = document.getElementById('show-date');
 const wsocks = {};
 
 tabs.forEach((el) => {
-  wsocks[el] = new WebSocket('ws://localhost:8000/logs?tab=packages-common');
+  wsocks[el] = new WebSocket(`ws://localhost:8000/logs?tab=${el}`);
   wsocks[el].onmessage = (line) => lineHandler(line.data);
   wsocks[el].addEventListener('open', (event) => {
     console.log(`Websocket ${el} opened`);
   });
-  wsocks[currentTab].addEventListener('close', (event) => {
+  wsocks[el].addEventListener('close', (event) => {
     console.log(`Websocket ${el} closed`);
   });
 });
