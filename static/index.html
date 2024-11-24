@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/images/logboard32.ico" />
     <meta
       http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate" />
@@ -16,21 +17,22 @@
     <div class="container">
       <h1>Log Viewer</h1>
       <div class="div-butt">
-        <div
-          ><span>Filter: </span><input id="search-input" type="text" />
-          <input
-            type="checkbox"
-            id="show-date"
-            onchange="showDateHandler()"
-            checked />
-          <label for="show-date">Show date</label>
+        <div><span>Filter: </span><input id="search-input" type="text" /> </div>
+        <div>
+          <label for="show-date">
+            <input
+              type="checkbox"
+              id="show-date"
+              onchange="fetchAllLogs()"
+              checked />Show date</label
+          >
         </div>
         <div class="tabs">
-          <button class="tab-button" onclick="setCurrentTab('packages-common')"
+          <button class="tab-button active-tab" onclick="setCurrentTab(this)"
             >Packages-Common</button
           >
-          <button class="tab-button" onclick="setCurrentTab('eap')">EAP</button>
-          <button class="tab-button" onclick="setCurrentTab('sdk')">SDK</button>
+          <button class="tab-button" onclick="setCurrentTab(this)">EAP</button>
+          <button class="tab-button" onclick="setCurrentTab(this)">SDK</button>
         </div>
         <div>
           <span>Reverse</span>
