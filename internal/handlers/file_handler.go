@@ -60,20 +60,26 @@ func LogRequest(data models.RequestData) error {
 	return err
 }
 
-// ServeLogFile отдает файл лога в ответе HTTP-запроса.
 func ServeLogFile(tab string, w http.ResponseWriter, r *http.Request) error {
+	// Путь к файлу лога
 	filePath := "logs/" + tab + ".log"
-	file, err := os.Open(filePath)
-	if os.IsNotExist(err) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte{}) // Пустой ответ, если файл не существует
-		return nil
-	} else if err != nil {
-		log.Printf("Error opening log file: %v", err)
+
+	// Попытка открыть файл. Если файл не существует, он будет создан.
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0644)
+	if err != nil {
+		log.Printf("Error opening/creating log file: %v", err)
 		return err
 	}
 	defer file.Close()
 
+	// Если файл только что был создан (первоначальный доступ), пустой ответ (пока нет данных).
+	if stat, _ := file.Stat(); stat.Size() == 0 {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte{}) // Пустой ответ
+		return nil
+	}
+
+	// Если файл существует и доступен, отдаем его в ответ на HTTP-запрос
 	http.ServeFile(w, r, filePath)
 	return nil
 }
