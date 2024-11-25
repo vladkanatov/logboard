@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"logboard/internal/models"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -81,5 +83,24 @@ func ServeLogFile(tab string, w http.ResponseWriter, r *http.Request) error {
 
 	// Если файл существует и доступен, отдаем его в ответ на HTTP-запрос
 	http.ServeFile(w, r, filePath)
+	return nil
+}
+
+func RenameLogFile(oldName, newName string) error {
+	logDir := "logs" // Путь к папке с логами
+
+	oldPath := filepath.Join(logDir, fmt.Sprintf("%s.log", oldName))
+	newPath := filepath.Join(logDir, fmt.Sprintf("%s.log", newName))
+
+	// Проверяем, существует ли старый файл
+	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
+		return fmt.Errorf("file %s does not exist", oldPath)
+	}
+
+	// Переименовываем файл
+	if err := os.Rename(oldPath, newPath); err != nil {
+		return fmt.Errorf("failed to rename file: %v", err)
+	}
+
 	return nil
 }
