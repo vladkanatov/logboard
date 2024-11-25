@@ -154,7 +154,7 @@ function renameTab(button) {
 async function fetchAllLogs() {
   logDisplay.innerHTML = '';
   const response = await fetch(
-    `/all_logs?tab=${currentTab}`,
+    `/all-logs?tab=${currentTab}`,
     { cache: 'no-cache' },
   );
   const data = await response.text();
