@@ -52,7 +52,7 @@ func LogRequest(data models.RequestData) error {
 		}
 	}
 
-	logEntry := data.Status + ": " + formatted + " - " + data.Data + "\n"
+	logEntry := data.Status + ": " + formatted + " " + data.Data + "\n"
 	_, err = file.WriteString(logEntry)
 	if err != nil {
 		log.Printf("Failed to write log entry: %v", err)
