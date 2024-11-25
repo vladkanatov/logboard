@@ -48,7 +48,7 @@ function setCurrentTab(obj) {
 async function fetchAllLogs() {
   logDisplay.innerHTML = '';
   const response = await fetch(
-    `http://localhost:8000/all_logs?tab=${currentTab}`,
+    `http://0.0.0.0:8000/all_logs?tab=${currentTab}`,
     { cache: 'no-cache' },
   );
   const data = await response.text();
