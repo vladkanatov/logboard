@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="static/logboard.png" width="100" height="100" />
+  <img src="static/images/logboard.png" width="100" height="100" />
 </p>
 <h1 align="center">
   Logboard - Web Application for view logs in several tabs
