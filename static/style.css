@@ -1,145 +1,139 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box; /* Учитываем отступы внутри ширины и высоты */
-}
-
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f4f8;
-  color: #333;
   margin: 0;
   padding: 0;
+  background-color: #f4f4f4;
   display: flex;
-  align-items: center;
   justify-content: center;
-  height: 100vh; /* Задаем высоту для body */
-  overflow: hidden;
+  align-items: flex-start;
+  min-height: 100vh;
 }
 
 .container {
   width: 100%;
-  max-width: 1200px; /* Ограничим максимальную ширину для удобства чтения */
-  height: 100vh; /* Высота контейнера на полный экран */
-  background: white;
-  padding: 20px;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 10px;
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
   text-align: center;
-  font-size: 2em;
-  margin-bottom: 20px;
+}
+
+.tabs-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0;
 }
 
 .tabs {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 10px 0;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 .tab-button {
-  padding: 10px 15px;
+  min-width: 100px; /* Установим минимальную ширину для всех кнопок */
+  text-align: center;
+  padding: 10px 20px;
   margin: 0 5px;
-  border: none;
-  border-radius: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px 5px 0 0;
+  background-color: #f0f0f0;
+  color: #333;
   cursor: pointer;
-  background-color: gray;
-  color: white;
-  transition: background-color 0.3s;
-}
-
-.sort-button {
-  padding: 10px 15px;
-  margin: 0 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #eee;
-  color: black;
   transition: background-color 0.3s;
 }
 
 .tab-button:hover {
+  background-color: #ddd;
+}
+
+.tab-button.active-tab {
   background-color: #0056b3;
+  color: white;
 }
 
-.div-butt {
+.add-tab {
   display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  justify-content: space-around;
   align-items: center;
+  gap: 5px;
 }
 
-/* Логи занимают оставшуюся высоту контейнера */
-.log-display {
-  display: flex;
-  justify-content: start;
-  background-color: #f8f9fa;
-  padding: 20px;
+.add-tab-button {
+  background-color: #0056b3;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.add-tab-button:hover {
+  background-color: #003f7f;
+}
+
+#new-tab-name {
+  display: none;
   border: 1px solid #ddd;
   border-radius: 5px;
-  width: 100%;
-  box-sizing: border-box;
-  flex: 1;
-  overflow-y: hidden;
+  padding: 5px;
+  font-size: 14px;
+  outline: none;
+  width: 150px;
 }
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.log-display {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.tab-rename-input {
+  width: 100%; /* Поле ввода занимает ширину кнопки */
+  box-sizing: border-box;
+  font-size: inherit;
+  padding: 0;
+  border: none; /* Убираем рамку */
+  background: transparent; /* Прозрачный фон */
+  text-align: center;
+  color: inherit; /* Наследует цвет текста кнопки */
+  outline: none; /* Убираем обводку при фокусе */
+  cursor: text; /* Указатель текста для понятности */
+}
+
 
 .reversed {
   flex-direction: column-reverse;
 }
 
-.stright {
-  flex-direction: column;
+.success {
+  color: green;
 }
 
 .error {
   color: red;
 }
+
 .info {
   color: blue;
-}
-.success {
-  color: black;
-}
-
-.active-tab {
-  background-color: blue;
-}
-
-.log {
-  background-color: #eee;
-  margin: 2px;
-}
-
-#search-input {
-  height: 30px;
-  border: 1px lightgray solid;
-  border-radius: 5px;
-  font-size: 1em;
-}
-
-.date-divider {
-  color: #555;
-  font-weight: bold;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  text-align: center;
-  font-size: 1.2em;
-  border-top: 1px solid #ddd;
-  padding-top: 10px;
-}
-
-.cont {
-  height: 100%;
-  overflow: auto;
-}
-
-#time {
-  margin: 0 0 0 20px;
 }
