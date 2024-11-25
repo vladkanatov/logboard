@@ -163,18 +163,17 @@ async function fetchAllLogs() {
 }
 
 async function renameTabOnBackend(oldName, newName) {
-  // const response = await fetch('/rename-tab', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({ oldName, newName }),
-  // });
+  const response = await fetch('/rename-tab', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ oldName, newName }),
+  });
 
-  // if (!response.ok) {
-  //   throw new Error('Ошибка на сервере');
-  // }
-  console.log("Cool!")
+  if (!response.ok) {
+    throw new Error('Ошибка на сервере');
+  }
 }
 
 const chgSortDirHandler = () => {
