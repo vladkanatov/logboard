@@ -5,5 +5,5 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - ./logs:/home/appuser/logs
+      - ./logs:/app/logs
     restart: always
