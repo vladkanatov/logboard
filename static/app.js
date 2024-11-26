@@ -7,7 +7,7 @@ const showTimeInput = document.getElementById('show-date');
 const wsocks = {};
 
 tabs.forEach((el) => {
-  wsocks[el] = new WebSocket(`ws://localhost:8000/logs?tab=${el}`);
+  wsocks[el] = new WebSocket(`/logs?tab=${el}`);
   wsocks[el].onmessage = (line) => lineHandler(line.data);
   wsocks[el].addEventListener('open', (event) => {
     console.log(`Websocket ${el} opened`);
@@ -48,7 +48,7 @@ function setCurrentTab(obj) {
 async function fetchAllLogs() {
   logDisplay.innerHTML = '';
   const response = await fetch(
-    `http://localhost:8000/all_logs?tab=${currentTab}`,
+    `/all_logs?tab=${currentTab}`,
     { cache: 'no-cache' },
   );
   const data = await response.text();

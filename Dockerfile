@@ -22,5 +22,7 @@ COPY --from=builder /app/logboard /app/logboard
 # Копируем папку static в стандартное место
 COPY --from=builder /app/static /app/static
 
+EXPOSE 8000
+
 # Задание дефолтной команды при запуске
 ENTRYPOINT ["/app/logboard"]
