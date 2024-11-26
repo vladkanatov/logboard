@@ -26,6 +26,7 @@ function setupWebSocket(tabName) {
 
 tabs.forEach(setupWebSocket);
 
+loadTabs();
 initializeTabs();
 fetchAllLogs();
 
@@ -58,6 +59,7 @@ function addNewTab() {
       const tabName = newTabNameInput.value.trim();
       if (tabName && !tabs.includes(tabName)) {
         tabs.push(tabName);
+        saveTabs();
         addTabButton(tabName);
         setupWebSocket(tabName)
         setCurrentTab(
@@ -83,6 +85,19 @@ function addTabButton(tabName) {
   tabContainer.appendChild(button);
 }
 
+function saveTabs() {
+  localStorage.setItem('tabs', JSON.stringify(tabs));
+  console.log("tab saved!")
+}
+
+function loadTabs() {
+  const storedTabs = localStorage.getItem('tabs');
+  if (storedTabs) {
+    tabs = JSON.parse(storedTabs);
+  } else {
+    tabs = ['all']; // Вкладка по умолчанию
+  }
+}
 
 // Установить текущую вкладку
 function setCurrentTab(button) {
@@ -131,6 +146,7 @@ function renameTab(button) {
           
           // Обновить данные на клиенте
           tabs[tabs.indexOf(originalName)] = newName;
+          saveTabs();
           button.textContent = newName;
           if (currentTab === originalName) {
             currentTab = newName
