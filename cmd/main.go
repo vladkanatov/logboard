@@ -4,7 +4,22 @@ import (
 	"log"
 	"logboard/internal/handlers"
 	"net/http"
+	"os"
 )
+
+func init() {
+	logDir := "logs"
+
+	// Проверяем, существует ли директория logs
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		// Создаем директорию logs
+		err := os.Mkdir(logDir, 0755)
+		if err != nil {
+			log.Fatalf("Failed to create logs directory: %v", err)
+		}
+		log.Printf("Created directory: %s", logDir)
+	}
+}
 
 func main() {
 	http.HandleFunc("/log", handlers.HandleRequest)         // Ожидает POST-запросы с `tab` в теле
