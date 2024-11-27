@@ -3,47 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/images/logboard32.ico" />
-    <meta
-      http-equiv="Cache-Control"
-      content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="cache-control" content="max-age=0" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <title>Build Logs</title>
+    <title>Logboard</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
-      <h1>Log Viewer</h1>
-      <div class="div-butt">
-        <div><span>Filter: </span><input id="search-input" type="text" /> </div>
+      <h1>Logboard</h1>
+      <div class="tabs-container">
+        <div class="tabs">
+          <!-- Вкладки будут динамически добавляться сюда -->
+        </div>
+        <div class="add-tab">
+          <button class="add-tab-button" onclick="addNewTab()">+</button>
+          <input
+            type="text"
+            id="new-tab-name"
+            placeholder="New tab name"
+            maxlength="20"
+          />
+        </div>
+      </div>
+      <div class="controls">
+        <div><span>Filter: </span><input id="search-input" type="text" /></div>
         <div>
-          <label for="show-date">
+          <label>
             <input
               type="checkbox"
               id="show-date"
               onchange="fetchAllLogs()"
-              checked />Show date</label
-          >
-        </div>
-        <div class="tabs">
-          <button class="tab-button active-tab" onclick="setCurrentTab(this)"
-            >Packages-Common</button
-          >
-          <button class="tab-button" onclick="setCurrentTab(this)">EAP</button>
-          <button class="tab-button" onclick="setCurrentTab(this)">SDK</button>
+              checked
+            />Show date
+          </label>
         </div>
         <div>
           <span>Reverse</span>
-          <button class="sort-button" onclick="chgSortDirHandler()"
-            >&#x2191;&#x2193;</button
-          >
+          <button class="sort-button" onclick="chgSortDirHandler()">⇅</button>
         </div>
       </div>
-      <div class="cont"
-        ><div id="log-display" class="log-display stright"></div
-      ></div>
+      <div id="log-display" class="log-display stright"></div>
     </div>
     <script src="app.js"></script>
   </body>
