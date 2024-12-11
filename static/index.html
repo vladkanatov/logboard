@@ -16,34 +16,27 @@
   <body>
     <div class="container">
       <h1>Log Viewer</h1>
-      <div class="div-butt">
-        <div><span>Filter: </span><input id="search-input" type="text" /> </div>
-        <div>
+      <div class="controls">
+        <div class="filter">
+          <span>Filter: </span><input id="search-input" type="text" />
+        </div>
+        <div class="show-date">
           <label for="show-date">
             <input
               type="checkbox"
               id="show-date"
               onchange="fetchAllLogs()"
-              checked />Show date</label
-          >
-        </div>
-        <div class="tabs">
-          <button class="tab-button active-tab" onclick="setCurrentTab(this)"
-            >Packages-Common</button
-          >
-          <button class="tab-button" onclick="setCurrentTab(this)">EAP</button>
-          <button class="tab-button" onclick="setCurrentTab(this)">SDK</button>
-        </div>
-        <div>
-          <span>Reverse</span>
-          <button class="sort-button" onclick="chgSortDirHandler()"
-            >&#x2191;&#x2193;</button
-          >
+              checked />Show date</label>
         </div>
       </div>
-      <div class="cont"
-        ><div id="log-display" class="log-display stright"></div
-      ></div>
+      <div class="tabs">
+        <button class="tab-button active-tab" onclick="setCurrentTab(this)">Packages-Common</button>
+        <button class="tab-button" onclick="setCurrentTab(this)">EAP</button>
+        <button class="tab-button" onclick="setCurrentTab(this)">SDK</button>
+      </div>
+      <div class="cont">
+        <div id="log-display" class="log-display stright"></div>
+      </div>
     </div>
     <script src="app.js"></script>
   </body>
