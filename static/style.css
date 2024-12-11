@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f4f8;
   color: #333;
   margin: 0;
@@ -31,41 +31,45 @@ body {
 
 h1 {
   text-align: center;
-  font-size: 2em;
+  font-size: 2.5em;
   margin-bottom: 20px;
+  color: #0056b3;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.filter, .show-date {
+  display: flex;
+  align-items: center;
 }
 
 .tabs {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 10px 0;
+  margin-bottom: 20px;
 }
 
 .tab-button {
-  padding: 10px 15px;
+  padding: 10px 20px;
   margin: 0 5px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: gray;
+  background-color: #0056b3;
   color: white;
   transition: background-color 0.3s;
 }
 
-.sort-button {
-  padding: 10px 15px;
-  margin: 0 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #eee;
-  color: black;
-  transition: background-color 0.3s;
+.tab-button:hover {
+  background-color: #004494;
 }
 
-.tab-button:hover {
-  background-color: #0056b3;
+.active-tab {
+  background-color: #003366;
 }
 
 .div-butt {
@@ -74,11 +78,13 @@ h1 {
   width: 100%;
   justify-content: space-around;
   align-items: center;
+  margin-bottom: 20px; /* Добавим отступ снизу */
 }
 
 /* Логи занимают оставшуюся высоту контейнера */
 .log-display {
   display: flex;
+  flex-direction: column;
   justify-content: start;
   background-color: #f8f9fa;
   padding: 20px;
@@ -87,15 +93,7 @@ h1 {
   width: 100%;
   box-sizing: border-box;
   flex: 1;
-  overflow-y: hidden;
-}
-
-.reversed {
-  flex-direction: column-reverse;
-}
-
-.stright {
-  flex-direction: column;
+  overflow-y: auto;
 }
 
 .error {
@@ -105,16 +103,12 @@ h1 {
   color: blue;
 }
 .success {
-  color: black;
-}
-
-.active-tab {
-  background-color: blue;
+  color: #000;
 }
 
 .log {
-  background-color: #eee;
-  margin: 2px;
+  background-color: #f8f9fa;
+  border-radius: 1px;
 }
 
 #search-input {
@@ -122,6 +116,7 @@ h1 {
   border: 1px lightgray solid;
   border-radius: 5px;
   font-size: 1em;
+  padding: 5px;
 }
 
 .date-divider {

@@ -1,6 +1,8 @@
 let currentTab = 'packages-common';
 let searchText = { 'packages-common': '', eap: '', sdk: '' };
 let tabs = ['packages-common', 'eap', 'sdk'];
+let isAutoScrollEnabled = true;
+const logContainer = document.querySelector('.cont');
 const logDisplay = document.getElementById('log-display');
 const searchInput = document.getElementById('search-input');
 const showTimeInput = document.getElementById('show-date');
@@ -15,6 +17,13 @@ tabs.forEach((el) => {
   wsocks[el].addEventListener('close', (event) => {
     console.log(`Websocket ${el} closed`);
   });
+});
+
+logContainer.addEventListener('scroll', () => {
+  const isAtBottom =
+    logContainer.scrollHeight - logContainer.scrollTop === logContainer.clientHeight;
+
+  isAutoScrollEnabled = isAtBottom;
 });
 
 fetchAllLogs();
@@ -54,6 +63,8 @@ async function fetchAllLogs() {
   const data = await response.text();
   data.split('\n').forEach((el) => lineHandler(el));
   searching();
+
+  logContainer.scrollTop = logContainer.scrollHeight;
 }
 
 const chgSortDirHandler = () => {
@@ -75,13 +86,18 @@ const lineHandler = (line) => {
     logLine.classList.add('info', 'log');
     line = line.slice(5).trim(); // Убираем "info:" из вывода и пробелы
   } else if (line === '') {
-  } else {
+    return;
   }
 
   logLine.innerHTML = showTimeInput.checked ? line : line.slice(20); // обработка даты
-  // Вставляем обработанную строку как HTML
   logDisplay.appendChild(logLine);
+
+  // Если автоскролл включен, прокручиваем вниз
+  if (isAutoScrollEnabled) {
+    logContainer.scrollTop = logContainer.scrollHeight;
+  }
 };
+
 
 wsocks[currentTab].onmessage = (event) => lineHandler(event.data);
 
