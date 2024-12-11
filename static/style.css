@@ -135,6 +135,7 @@ h1 {
 
 .log {
   background-color: #f0f4f8;
+  font-size: 0.9em; /* Уменьшите размер шрифта */
 }
 
 .date-divider {
