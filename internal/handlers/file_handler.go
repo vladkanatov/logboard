@@ -43,16 +43,15 @@ func LogRequest(data models.RequestData) error {
 
 	// Добавляем разделитель для нового дня
 	t := time.Now()
-	formatted := t.Format("2006-01-02 15:04:05")
 
 	fileInfo, err := file.Stat()
 	if err == nil && fileInfo.Size() > 0 {
 		if lastModified := fileInfo.ModTime(); lastModified.Day() != t.Day() {
-			_, _ = file.WriteString("-----------------------------------\n" + t.Format("2006-01-02") + "\n")
+			_, _ = file.WriteString("info:-----------------------------------\n" + "info:" + t.Format("2006-01-02") + "\n" + "info:-----------------------------------\n")
 		}
 	}
 
-	logEntry := data.Status + ": " + formatted + " " + data.Data + "\n"
+	logEntry := data.Status + ": " + data.Data + "\n"
 	_, err = file.WriteString(logEntry)
 	if err != nil {
 		log.Printf("Failed to write log entry: %v", err)

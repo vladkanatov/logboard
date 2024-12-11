@@ -18,15 +18,7 @@
       <h1>Log Viewer</h1>
       <div class="controls">
         <div class="filter">
-          <span>Filter: </span><input id="search-input" type="text" />
-        </div>
-        <div class="show-date">
-          <label for="show-date">
-            <input
-              type="checkbox"
-              id="show-date"
-              onchange="fetchAllLogs()"
-              checked />Show date</label>
+          <input id="search-input" type="text" placeholder="Search logs..." oninput="searching()" />
         </div>
       </div>
       <div class="tabs">

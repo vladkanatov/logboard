@@ -32,9 +32,7 @@ fetchAllLogs();
 const searching = () => {
   let logs = document.getElementsByClassName('log');
   for (let log of logs) {
-    const textToSearch = showTimeInput.checked
-      ? log.textContent.slice(20)
-      : log.textContent;
+    const textToSearch = log.textContent;
     textToSearch.toLowerCase().includes(searchInput.value.toLowerCase())
       ? (log.style.display = 'block')
       : (log.style.display = 'none');
@@ -63,16 +61,10 @@ async function fetchAllLogs() {
   const data = await response.text();
   data.split('\n').forEach((el) => lineHandler(el));
   searching();
-
+  
+  // Прокрутка вниз после загрузки всех логов
   logContainer.scrollTop = logContainer.scrollHeight;
 }
-
-const chgSortDirHandler = () => {
-  logDisplay.classList.contains('reversed')
-    ? logDisplay.classList.replace('reversed', 'stright')
-    : logDisplay.classList.replace('stright', 'reversed');
-  logDisplay.scrollTop = logDisplay.scrollHeight;
-};
 
 const lineHandler = (line) => {
   const logLine = document.createElement('div');
@@ -89,7 +81,11 @@ const lineHandler = (line) => {
     return;
   }
 
-  logLine.innerHTML = showTimeInput.checked ? line : line.slice(20); // обработка даты
+  const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  line = line.replace(markdownLinkRegex, '<a href="$2" target="_blank">$1</a>');
+
+
+  logLine.innerHTML = line
   logDisplay.appendChild(logLine);
 
   // Если автоскролл включен, прокручиваем вниз

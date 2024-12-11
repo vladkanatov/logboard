@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - transset
   pull_request:
     branches:
       - main
+      - transset
 
 jobs:
   build:
@@ -17,17 +19,6 @@ jobs:
     # Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v3
-
-    # Cache Go modules
-    - name: Cache Go modules
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
 
     # Set up Go environment
     - name: Set up Go 1.23
